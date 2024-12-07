@@ -16,10 +16,7 @@ public class PlayerIdleState : PlayerState
     public override void UpdateState()
     {
         //Debug.Log("Update" + this);
-        GroundCheck();
-        RotatePlayer();
-        MovePlayer();
-        LockCamera();
+
     }
 
     public override void ExitState()
@@ -29,26 +26,7 @@ public class PlayerIdleState : PlayerState
 
     public override PlayerStateMachine.EPlayerState GetNextState()
     {
-        if (Context.IsDead)
-        {
-            return PlayerStateMachine.EPlayerState.Dead;
-        }
-        else
-        {
-            if (Context.IsMoving)
-            {
-                return PlayerStateMachine.EPlayerState.Walk;
-            }
-            else if (Context.IsFreeze)
-            {
-                return PlayerStateMachine.EPlayerState.Freese;
-            }
-            /*else if (!Context.IsGrounded)
-            {
-                return PlayerStateMachine.EPlayerState.Jump;
-            }*/
-        }
-        
+       
         return StateKey;
     }
 
