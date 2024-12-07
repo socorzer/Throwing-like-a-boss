@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerIdleState : PlayerState
+public class PlayerThrowingState : PlayerState
 {
-    public PlayerIdleState(PlayerContext context, PlayerStateMachine.EPlayerState stateKey) : base(context, stateKey)
+    public PlayerThrowingState(PlayerContext context, PlayerStateMachine.EPlayerState stateKey) : base(context, stateKey)
     {
         Context = context;
     }
@@ -12,6 +12,7 @@ public class PlayerIdleState : PlayerState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        EnterThrowing();
     }
     public override void UpdateState()
     {
@@ -26,7 +27,7 @@ public class PlayerIdleState : PlayerState
 
     public override PlayerStateMachine.EPlayerState GetNextState()
     {
-        if (Context.IsCharging) return PlayerStateMachine.EPlayerState.Charging;
+        if (!Context.IsThrowing) return PlayerStateMachine.EPlayerState.Idle;
         return StateKey;
     }
 

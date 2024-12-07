@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerIdleState : PlayerState
+public class GamePreparingState : GameState
 {
-    public PlayerIdleState(PlayerContext context, PlayerStateMachine.EPlayerState stateKey) : base(context, stateKey)
+    public GamePreparingState(GameContext context, GameStateMachine.EGameState stateKey) : base(context, stateKey)
     {
         Context = context;
     }
@@ -24,9 +24,9 @@ public class PlayerIdleState : PlayerState
         //Debug.Log("Exit" + this);
     }
 
-    public override PlayerStateMachine.EPlayerState GetNextState()
+    public override GameStateMachine.EGameState GetNextState()
     {
-        if (Context.IsCharging) return PlayerStateMachine.EPlayerState.Charging;
+       
         return StateKey;
     }
 
