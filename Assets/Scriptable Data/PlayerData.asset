@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9435ab3fae1dd048bd9bb135d474999, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  MaxChargingPower: 2
-  ChargeRate: 1
+  BulletPrefab: {fileID: 166236501577516845, guid: 0336d22fb38180d47b1c8ccf19c29fcf, type: 3}
+  MaxChargingPower: 1
+  ChargeRate: 0.5
+  ThrowPower: 100

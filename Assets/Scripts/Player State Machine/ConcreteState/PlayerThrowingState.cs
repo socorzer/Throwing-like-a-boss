@@ -23,6 +23,7 @@ public class PlayerThrowingState : PlayerState
     public override void ExitState()
     {
         //Debug.Log("Exit" + this);
+        ExitThrowing();
     }
 
     public override PlayerStateMachine.EPlayerState GetNextState()

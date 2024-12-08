@@ -10,4 +10,7 @@ public class GameContext
     {
 
     }
+    public List<PlayerStateMachine> Players { get; set; }
+    public PlayerStateMachine CurrentPlayer { get; set; }
+    public bool IsPlaying { get; set; }
 }
