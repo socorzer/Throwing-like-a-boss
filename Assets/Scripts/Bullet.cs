@@ -6,20 +6,33 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] LayerMask _mask;
     bool isHit;
+    float damage;
+    public void SetDamage(float damage)
+    {
+        this.damage = damage;
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(isHit)return;
         Destroy(gameObject, 0.2f);
+
         if ((_mask & (1 << collision.gameObject.layer)) != 0)
         {
             PlayerStateMachine player = collision.gameObject.GetComponentInParent<PlayerStateMachine>();
-            if (collision.gameObject.CompareTag("Head"))
+            if (damage != 0)
             {
-                player.TakeDamage(true);
+                player.TakeDamage(damage);
             }
             else
             {
-                player.TakeDamage(false);
+                if (collision.gameObject.CompareTag("Head"))
+                {
+                    player.TakeDamage(true);
+                }
+                else
+                {
+                    player.TakeDamage(false);
+                }
             }
             isHit = true;
         }
