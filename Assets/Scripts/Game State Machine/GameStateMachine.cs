@@ -47,10 +47,8 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
     public void ChangePlayerTurn()
     {
         if (!_context.IsPlaying) return;
-
         _context.CurrentPlayer = _context.CurrentPlayer == _context.Players[0] ? _context.Players[1] : _context.Players[0];
         _context.CurrentPlayer.SetPlayerTurn();
         UIManager.Instance.SetMarkerPosition(_context.CurrentPlayer.transform.position);
-
     }
 }

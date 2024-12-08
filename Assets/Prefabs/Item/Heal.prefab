@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 9068648813495089936}
   - component: {fileID: 7549679283296857066}
   - component: {fileID: 8151442711524806794}
-  - component: {fileID: 1796420644920364458}
+  - component: {fileID: 5657042462618627268}
   m_Layer: 5
   m_Name: Heal
   m_TagString: Untagged
@@ -199,8 +199,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1796420644920364458}
-        m_TargetAssemblyTypeName: Item, Assembly-CSharp
+      - m_Target: {fileID: 5657042462618627268}
+        m_TargetAssemblyTypeName: Heal, Assembly-CSharp
         m_MethodName: UseItem
         m_Mode: 1
         m_Arguments:
@@ -211,7 +211,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1796420644920364458
+--- !u!114 &5657042462618627268
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -220,7 +220,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3366745015266221144}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e965bd8633e577499a2efc6c5f179cf, type: 3}
+  m_Script: {fileID: 11500000, guid: cf0b9ddef7847bd4280951ff9bf1c6ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _owner: {fileID: 0}

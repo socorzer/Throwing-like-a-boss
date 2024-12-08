@@ -3211,6 +3211,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Heal
       objectReference: {fileID: 0}
+    - target: {fileID: 5657042462618627268, guid: fa70b2662afebdd4c8b25549336a797c, type: 3}
+      propertyPath: _owner
+      value: 
+      objectReference: {fileID: 1324573731}
     - target: {fileID: 8755475069730428704, guid: fa70b2662afebdd4c8b25549336a797c, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -4703,6 +4707,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Heal
       objectReference: {fileID: 0}
+    - target: {fileID: 5657042462618627268, guid: fa70b2662afebdd4c8b25549336a797c, type: 3}
+      propertyPath: _owner
+      value: 
+      objectReference: {fileID: 566565196}
     - target: {fileID: 8755475069730428704, guid: fa70b2662afebdd4c8b25549336a797c, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

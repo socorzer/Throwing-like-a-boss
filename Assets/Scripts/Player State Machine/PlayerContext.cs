@@ -19,6 +19,15 @@ public class PlayerContext
         HP -= damage;
         GameManager.Instance.PlayerTakeDamage();
     }
+    public void Heal(float healPoint)
+    {
+        HP += healPoint;
+        if (HP > MaxHP) HP = MaxHP;
+
+        IsMyTurn = false;
+        GameManager.Instance.ChangePlayerTurn();
+
+    }
     public Transform PlayerTransform { get; private set; }
     public ShootingController ShootingController { get; private set; }
     public PlayerData Data { get; private set; }
