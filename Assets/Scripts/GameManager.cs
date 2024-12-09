@@ -9,9 +9,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] List<PlayerStateMachine> _playerStateMachines;
 
     [SerializeField] float _currentWind;
-    [SerializeField] float _windMultiplier;
     [SerializeField] AreaEffector2D _windEffector;
-
 
     public GameStateMachine GameStateMachine { get { return _gameStateMachine; } }
     private void Start()
@@ -33,12 +31,12 @@ public class GameManager : Singleton<GameManager>
         float windPower = Random.Range(0f, 1.0f);
 
         if (windPower < 0.05f && windPower > -0.05f) windPower = 0;
-        _currentWind = isRightWind ? windPower : -windPower;
+        _currentWind = windPower;
         SetWindEffector();
-        UIManager.Instance.SetWindGage(_currentWind);
+        UIManager.Instance.SetWindGage(isRightWind ? windPower : -windPower);
     }
     public void SetWindEffector()
     {
-        _windEffector.forceMagnitude = _currentWind * _windMultiplier;
+        _windEffector.forceMagnitude = _currentWind * 10;
     }
 }

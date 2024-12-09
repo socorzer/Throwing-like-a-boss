@@ -55,11 +55,6 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         _context.TakeDamage(damage);
         Debug.Log(damage);
     }
-    public void TakeDamage(float damage)
-    {
-        _context.TakeDamage(damage);
-        Debug.Log(damage);
-    }
     private void OnMouseDrag()
     {
         if (!_context.IsMyTurn) return;
@@ -67,6 +62,4 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         _context.IsCharging = true;
     }
     public float GetPlayerHPPercent() => _context.HP/_context.MaxHP;
-    public bool CanUseItem() => !_context.IsCharging && !_context.IsThrowing && _context.IsMyTurn;
-    public void SetItem(string name) => _shootingController.SetItemName(name);
 }
