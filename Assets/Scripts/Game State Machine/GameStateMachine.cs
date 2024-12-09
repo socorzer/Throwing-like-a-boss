@@ -4,6 +4,7 @@ using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections.Generic;
+using System.Collections;
 
 public class GameStateMachine : StateManager<GameStateMachine.EGameState>
 {
@@ -16,7 +17,7 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
     }
     GameContext _context;
 
-    
+    bool isPlayerCharging;
     private void Awake()
     {
         ValidationConstrants();
@@ -40,9 +41,16 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
         _context.Players = players;
         _context.CurrentPlayer = _context.Players[1];
         _context.CurrentPlayer.SetPlayerTurn();
-        _context.IsPlaying = true;
         UIManager.Instance.SetMarkerPosition(_context.CurrentPlayer.transform.position);
-
+        Invoke(nameof(SetPlayerHP),1);
+    }
+    public void SetPlayerHP()
+    {
+        foreach (var player in _context.Players)
+        {
+            player.SetPlayerHP();
+        }
+        _context.IsPlaying = true;
     }
     public void ChangePlayerTurn()
     {
@@ -50,5 +58,20 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
         _context.CurrentPlayer = _context.CurrentPlayer == _context.Players[0] ? _context.Players[1] : _context.Players[0];
         _context.CurrentPlayer.SetPlayerTurn();
         UIManager.Instance.SetMarkerPosition(_context.CurrentPlayer.transform.position);
+    }
+    public void SetPlayerCharge(bool isCharging)
+    {
+        if (!_context.IsPlaying) return;
+        isPlayerCharging = isCharging;
+        if (isPlayerCharging) StartCoroutine(Charging());
+    }
+    IEnumerator Charging()
+    {
+        while (isPlayerCharging)
+        {
+            _context.CurrentPlayer.Charge();
+            yield return new WaitForEndOfFrame();
+        }
+
     }
 }

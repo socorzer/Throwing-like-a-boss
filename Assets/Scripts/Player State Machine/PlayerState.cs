@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
@@ -41,5 +42,7 @@ public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
         Context.ChargingPower = 0;
         GameManager.Instance.ChangePlayerTurn();
         GameManager.Instance.RandomWind();
+        Context.EnableHitboxs(true);
     }
+
 }

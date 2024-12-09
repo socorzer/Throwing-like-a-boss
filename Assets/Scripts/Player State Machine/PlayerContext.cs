@@ -6,13 +6,13 @@ using UnityEngine.UI;
 public class PlayerContext
 {
 
-    public PlayerContext(PlayerData playerData,Transform playerTranform, ShootingController shootingContoller)
+    public PlayerContext(PlayerData playerData,Transform playerTranform, ShootingController shootingContoller, List<Collider2D> hitBoxs)
     {
         Data = playerData;
         PlayerTransform = playerTranform;
         ShootingController = shootingContoller;
-        MaxHP = StatsReader.Instance.GetStat("Player HP").HP;
-        HP = MaxHP;
+        HitBoxs = hitBoxs;
+
     }
     public void TakeDamage(float damage)
     {
@@ -26,7 +26,21 @@ public class PlayerContext
 
         IsMyTurn = false;
         GameManager.Instance.ChangePlayerTurn();
+        GameManager.Instance.PlayerTakeDamage();
 
+    }
+    public void EnableHitboxs(bool isEnable)
+    {
+        List<Collider2D> hitBox = HitBoxs;
+        foreach (Collider2D collider in hitBox)
+        {
+            collider.enabled = isEnable;
+        }
+    }
+    public void SetPlayerHP()
+    {
+        MaxHP = StatsReader.Instance.GetStat("Player HP").HP;
+        HP = MaxHP;
     }
     public Transform PlayerTransform { get; private set; }
     public ShootingController ShootingController { get; private set; }
@@ -38,4 +52,5 @@ public class PlayerContext
     public int FrameForCheckDrag { get; set; }
     public float HP { get; private set; }
     public float MaxHP { get; private set; }
+    public List<Collider2D> HitBoxs { get; private set; }
 }
