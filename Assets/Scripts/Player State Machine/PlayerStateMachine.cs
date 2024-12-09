@@ -31,7 +31,6 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     }
     private void InitializeStates()
     {
-
         States.Add(EPlayerState.Idle, new PlayerIdleState(_context, EPlayerState.Idle));
         States.Add(EPlayerState.Charging, new PlayerChargingState(_context, EPlayerState.Charging));
         States.Add(EPlayerState.Throwing, new PlayerThrowingState(_context, EPlayerState.Throwing));
@@ -70,5 +69,4 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     public float GetPlayerHPPercent() => _context.HP/_context.MaxHP;
     public bool CanUseItem() => !_context.IsCharging && !_context.IsThrowing && _context.IsMyTurn;
     public void SetItem(string name) => _shootingController.SetItemName(name);
-    public void Heal(float heal) => _context.Heal(heal);
 }
