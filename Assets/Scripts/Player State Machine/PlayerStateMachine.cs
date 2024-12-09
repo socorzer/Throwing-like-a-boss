@@ -74,4 +74,5 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     public bool CanUseItem() => !_context.IsCharging && !_context.IsThrowing && _context.IsMyTurn;
     public void SetItem(string name) => _shootingController.SetItemName(name);
     public void Heal(float heal) => _context.Heal(heal);
+    public void ThrowSuccess() => _context.IsThrowing = false;
 }

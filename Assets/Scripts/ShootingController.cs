@@ -6,7 +6,9 @@ public class ShootingController : MonoBehaviour
 {
     [SerializeField] Transform _aimPivot;
     [SerializeField] Transform _bulletSpawnPoint;
+    [SerializeField] PlayerStateMachine _player;
     [SerializeField] float _shootDelayTime;
+    [SerializeField] float _delayAfterThrow;
     string _itemName = "none";
     public void SetItemName(string itemName)
     {
@@ -33,7 +35,14 @@ public class ShootingController : MonoBehaviour
             Vector2 direction = bullet.transform.up * power;
             rigidbody.AddForce(direction, ForceMode2D.Impulse);
             shootAmount--;
-            yield return new WaitForSeconds(_shootDelayTime);
+            if(shootAmount > 0)
+                yield return new WaitForSeconds(_shootDelayTime);
+            else yield return null;
         }
+        Invoke(nameof(ThrowEnd), _delayAfterThrow);
+    }
+    public void ThrowEnd()
+    {
+        _player.ThrowSuccess();
     }
 }

@@ -34,7 +34,6 @@ public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
     {
         Debug.Log($"Throw With Power {Context.ChargingPower}");
         Context.ShootingController.Shoot(Context.Data.BulletPrefab, Context.ChargingPower * Context.Data.ThrowPower);
-        Context.IsThrowing = false;
         Context.IsMyTurn = false;
     }
     public void ExitThrowing()

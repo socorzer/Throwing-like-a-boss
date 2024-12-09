@@ -1818,7 +1818,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _aimPivot: {fileID: 143655114}
   _bulletSpawnPoint: {fileID: 233903177}
+  _player: {fileID: 566565196}
   _shootDelayTime: 2
+  _delayAfterThrow: 2
 --- !u!1 &603248017
 GameObject:
   m_ObjectHideFlags: 0
@@ -3211,7 +3213,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _aimPivot: {fileID: 1041569565}
   _bulletSpawnPoint: {fileID: 1041569566}
+  _player: {fileID: 1324573731}
   _shootDelayTime: 2
+  _delayAfterThrow: 2
 --- !u!1 &1324728792
 GameObject:
   m_ObjectHideFlags: 0
