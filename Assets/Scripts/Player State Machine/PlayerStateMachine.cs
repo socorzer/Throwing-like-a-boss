@@ -9,12 +9,12 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         Idle,
         Charging,
         Throwing,
-        End
+        Lose
     }
     PlayerContext _context;
     PlayerData _data;
-
-    [SerializeField] ShootingController _shootingController;
+    int _frameForCheckRelease;
+    public bool IsYourTurn { get; private set; }
     
     private void Awake()
     {
@@ -22,7 +22,7 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
 
         ValidationConstrants();
         _data = DataHandler.Instance.PlayerData;
-        _context = new PlayerContext(_data, this.transform, _shootingController);
+        _context = new PlayerContext(_data, this.transform);
         InitializeStates();
     }
     private void ValidationConstrants()
@@ -34,32 +34,17 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         States.Add(EPlayerState.Idle, new PlayerIdleState(_context, EPlayerState.Idle));
         States.Add(EPlayerState.Charging, new PlayerChargingState(_context, EPlayerState.Charging));
         States.Add(EPlayerState.Throwing, new PlayerThrowingState(_context, EPlayerState.Throwing));
-        States.Add(EPlayerState.End, new PlayerEndState(_context, EPlayerState.End));
+        States.Add(EPlayerState.Lose, new PlayerLoseState(_context, EPlayerState.Lose));
         CurrentState = States[EPlayerState.Idle];
     }
-    public void SetPlayerTurn()
+    public void SetIsYourTurn(bool isYourTurn)
     {
-        _context.IsMyTurn = true;
-    }
-    public void TakeDamage(bool isHead)
-    {
-        float damage = 0;
-        if (isHead)
-        {
-            damage = StatsReader.Instance.GetStat("Normal Attack").Damage;
-        }
-        else
-        {
-            damage = StatsReader.Instance.GetStat("Small Attack").Damage;
-        }
-        _context.TakeDamage(damage);
-        Debug.Log(damage);
+        IsYourTurn = isYourTurn;
     }
     private void OnMouseDrag()
     {
-        if (!_context.IsMyTurn) return;
+        //if (!IsYourTurn) return;
         _context.FrameForCheckDrag = 3;
         _context.IsCharging = true;
     }
-    public float GetPlayerHPPercent() => _context.HP/_context.MaxHP;
 }

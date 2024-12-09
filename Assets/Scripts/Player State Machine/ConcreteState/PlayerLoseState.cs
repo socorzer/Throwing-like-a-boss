@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerEndState : PlayerState
+public class PlayerLoseState : PlayerState
 {
-    public PlayerEndState(PlayerContext context, PlayerStateMachine.EPlayerState stateKey) : base(context, stateKey)
+    public PlayerLoseState(PlayerContext context, PlayerStateMachine.EPlayerState stateKey) : base(context, stateKey)
     {
         Context = context;
     }
