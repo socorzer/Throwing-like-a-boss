@@ -1,12 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class ItemManager : Singleton<ItemManager>
+public class HomeManager : MonoBehaviour
 {
-    [SerializeField] List<Button> _leftItemButtons;
-    [SerializeField] List<Button> _rightItemButtons;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,5 +15,9 @@ public class ItemManager : Singleton<ItemManager>
     void Update()
     {
         
+    }
+    public void LoadGameplay()
+    {
+        SceneManager.LoadScene("Gameplay");
     }
 }

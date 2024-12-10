@@ -39,23 +39,29 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
     public void SetupPlayer(List<PlayerStateMachine> players)
     {
         _context.Players = players;
-        _context.CurrentPlayer = _context.Players[1];
-        _context.CurrentPlayer.SetPlayerTurn();
-        UIManager.Instance.SetMarkerPosition(_context.CurrentPlayer.transform.position);
-        Invoke(nameof(SetPlayerHP),1);
+        _context.IsSetUpComplete = true;
     }
-    public void SetPlayerHP()
+    public void Play()
     {
-        foreach (var player in _context.Players)
+        _context.Canplay = true;
+        StartCoroutine(PlayTimeCount());
+    }
+    IEnumerator PlayTimeCount()
+    {
+        while(_context.Canplay || _context.IsPlaying)
         {
-            player.SetPlayerHP();
+            _context.PlaySecond++;
+            if (_context.PlaySecond >= 60)
+            {
+                _context.PlaySecond = 0;
+                _context.PlayMinute++;
+            }
+            yield return new WaitForSeconds(1);
         }
-        SetAIType(0);
-        _context.IsPlaying = true;
     }
     public void ChangePlayerTurn()
     {
-        if (!_context.IsPlaying) return;
+        if (!_context.IsPlaying || _context.IsEnd) return;
         _context.CurrentPlayer = _context.CurrentPlayer == _context.Players[0] ? _context.Players[1] : _context.Players[0];
         _context.CurrentPlayer.SetPlayerTurn();
         UIManager.Instance.SetMarkerPosition(_context.CurrentPlayer.transform.position);
@@ -79,5 +85,17 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
     {
         AIType type = (AIType)index;
         _context.Players[0].SetAI(type);
+        UIManager.Instance.HideItemGroup();
+        UIManager.Instance.ShowDifficultUI(false);
+        UIManager.Instance.ShowGameplayUI(true);
+    }
+    public void EndGame()
+    {
+        _context.IsEnd = true;
+        Invoke(nameof(ShowEndGame),2);
+    }
+    public void ShowEndGame()
+    {
+        UIManager.Instance.ShowEndGameUI();
     }
 }

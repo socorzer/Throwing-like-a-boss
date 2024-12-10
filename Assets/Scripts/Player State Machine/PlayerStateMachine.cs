@@ -1,4 +1,5 @@
 ﻿
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,15 +18,16 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
 
     [SerializeField] ShootingController _shootingController;
     [SerializeField] List<Collider2D> _hitBoxs;
-
+    [SerializeField] SkeletonAnimation _skeleton;
     float _missedChance;
+    bool _isWin;
     public bool IsAI { get; private set; }
     private void Awake()
     {
 
         ValidationConstrants();
         _data = DataHandler.Instance.PlayerData;
-        _context = new PlayerContext(_data, this.transform, _shootingController, _hitBoxs);
+        _context = new PlayerContext(_data, this.transform, _shootingController, _hitBoxs, _skeleton);
         InitializeStates();
     }
     private void ValidationConstrants()
@@ -45,7 +47,36 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     {
         _context.IsMyTurn = true;
         _context.EnableHitboxs(false);
+        _skeleton.state.SetAnimation(0, "Idle Friendly 1", true);
+
         if (IsAI) StartCoroutine(AutoCharge());
+        else StartCoroutine(CountDown());
+    }
+    IEnumerator CountDown()
+    {
+        int thinkTime = StatsReader.Instance.GetStat("Time to think").Second;
+        float maxWaringTime = StatsReader.Instance.GetStat("Time to Warning").Second;
+        float currentWarningTime = maxWaringTime;
+
+        while (thinkTime > 0 && !_context.IsCharging)
+        {
+            yield return new WaitForSeconds(1);
+            thinkTime--;
+        }
+        while (currentWarningTime > 0 && !_context.IsCharging)
+        {
+            yield return new WaitForSeconds(1);
+            currentWarningTime--;
+            UIManager.Instance.SetWarningGage(currentWarningTime/maxWaringTime);
+        }
+        UIManager.Instance.SetWarningGage(0);
+
+        if (thinkTime > 0 && currentWarningTime > 0)    yield break;
+        _context.IsMyTurn = false;
+        _context.EnableHitboxs(true);
+
+        GameManager.Instance.ChangePlayerTurn();
+        GameManager.Instance.PlayerTakeDamage();
     }
     public void TakeDamage(bool isHead)
     {
@@ -60,11 +91,13 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         }
         _context.TakeDamage(damage);
         Debug.Log(damage);
+        _skeleton.state.SetAnimation(0, "Drag UnFriendly", false);
     }
     public void TakeDamage(float damage)
     {
         _context.TakeDamage(damage);
         Debug.Log(damage);
+        _skeleton.state.SetAnimation(0, "Drag UnFriendly", false);
     }
     public void Charge()
     {
@@ -77,7 +110,7 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         // คำนวณตัวหารตามความเข้มของลม
         float windDenominator = 0;
         float windRange = Mathf.Abs(GameManager.Instance.CurrentWind);
-        if (windRange < 0.5f)
+        if (windRange < 0.45f)
         {
             windDenominator = _context.Data.WindDenominators[0];
         }
@@ -90,11 +123,14 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         // คำนวณ targetCharge โดยใช้ windDenominator ที่คำนวณได้
         float windEffect = GameManager.Instance.CurrentWind / windDenominator;
         float targetCharge = 0.55f + -windEffect;
-
+        if(Random.Range(0,100) < _missedChance)
+        {
+            targetCharge += Random.Range(-0.2f, 0.2f);
+        }
         // ล็อกค่า targetCharge ให้อยู่ในช่วง 0 ถึง 1
         targetCharge = Mathf.Clamp(targetCharge, 0, 1);
 
-        Debug.Log($"CurrentWind/{windDenominator} = {-GameManager.Instance.CurrentWind / windDenominator}\ntarget = {targetCharge}");
+        // Debug.Log($"CurrentWind/{windDenominator} = {-GameManager.Instance.CurrentWind / windDenominator}\ntarget = {targetCharge}");
         while (_context.ChargingPower < targetCharge)
         {
             Charge();
@@ -113,7 +149,26 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         GameStats enemyStat = StatsReader.Instance.GetStat($"Enemy HP ({typeOfAI.ToString()})");
         _context.SetPlayerHP(enemyStat);
         _missedChance = enemyStat.MissedChance;
-    } 
+        Debug.Log($"HP = {enemyStat.HP}");
+    }
+    public float GetHP() => _context.HP;
+    public void PlayThrowAnimation()
+    {
+        _skeleton.state.SetAnimation(0, "Cheer UnFriendly", false);
+    }
+    public void SetPlayerEnd(bool isWin)
+    {
+        _isWin = isWin;
+        if (_isWin)
+            _skeleton.state.SetAnimation(0, "Cheer Friendly", true);
+        else
+            _skeleton.state.SetAnimation(0, "Moody UnFriendly", true);
+        Invoke(nameof(PlayEndAnimation),1);
+    }
+    void PlayEndAnimation()
+    {
+
+    }
 }
 public enum AIType
 {

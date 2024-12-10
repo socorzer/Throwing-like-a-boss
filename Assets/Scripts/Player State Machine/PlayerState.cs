@@ -9,6 +9,10 @@ public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
     {
         Context = context;
     }
+    public void EnterIdle()
+    {
+        Context.Skeleton.state.SetAnimation(0, "Idle Friendly 1", true);
+    }
     public void EnterCharging()
     {
         UIManager.Instance.SetChargingGagePosition(Context.PlayerTransform.position);
@@ -42,6 +46,12 @@ public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
         GameManager.Instance.RandomWind();
         GameManager.Instance.ChangePlayerTurn();
         Context.EnableHitboxs(true);
+
+        Context.Skeleton.state.SetAnimation(0, "Idle Friendly 1", true);
+    }
+    public void EnterEnd()
+    {
+        GameManager.Instance.EndGame();
     }
 
 }

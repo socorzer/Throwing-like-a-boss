@@ -12,6 +12,7 @@ public class PlayerIdleState : PlayerState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        EnterIdle();
     }
     public override void UpdateState()
     {
@@ -26,7 +27,8 @@ public class PlayerIdleState : PlayerState
 
     public override PlayerStateMachine.EPlayerState GetNextState()
     {
-        if (Context.IsCharging) return PlayerStateMachine.EPlayerState.Charging;
+        if (Context.IsEnd) return PlayerStateMachine.EPlayerState.End;
+        else if (Context.IsCharging) return PlayerStateMachine.EPlayerState.Charging;
         return StateKey;
     }
 

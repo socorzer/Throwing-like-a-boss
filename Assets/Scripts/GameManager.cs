@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -15,10 +16,6 @@ public class GameManager : Singleton<GameManager>
 
 
     public GameStateMachine GameStateMachine { get { return _gameStateMachine; } }
-    private void Start()
-    {
-        _gameStateMachine.SetupPlayer(_playerStateMachines);
-    }
 
     public void ChangePlayerTurn()
     {
@@ -68,6 +65,24 @@ public class GameManager : Singleton<GameManager>
 
 
         //Panel_share.SetActive(false); //hide the panel
+    }
+    public void SetUpPlayer()
+    {
+        _gameStateMachine.SetupPlayer(_playerStateMachines);
+        UIManager.Instance.ShowModeSelectUI(false);
+    }
+    public void EndGame()
+    {
+        _gameStateMachine.EndGame();    
+    }
+    public void ReloadScene()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
+    }
+    public void GoToHome()
+    {
+        SceneManager.LoadScene("Home");
     }
 
 }

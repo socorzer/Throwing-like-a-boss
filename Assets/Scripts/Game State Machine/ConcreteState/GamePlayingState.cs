@@ -12,6 +12,7 @@ public class GamePlayingState : GameState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        Context.IsPlaying = true;
     }
     public override void UpdateState()
     {
@@ -26,7 +27,7 @@ public class GamePlayingState : GameState
 
     public override GameStateMachine.EGameState GetNextState()
     {
-       
+       if(Context.IsEnd) return GameStateMachine.EGameState.End;
         return StateKey;
     }
 

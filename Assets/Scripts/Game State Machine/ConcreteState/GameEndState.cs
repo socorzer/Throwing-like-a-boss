@@ -12,6 +12,7 @@ public class GameEndState : GameState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        EndGame();
     }
     public override void UpdateState()
     {

@@ -22,11 +22,12 @@ public class GameSetupState : GameState
     public override void ExitState()
     {
         //Debug.Log("Exit" + this);
+        SetFirstPlayerTurn();
     }
 
     public override GameStateMachine.EGameState GetNextState()
     {
-       
+        if(Context.IsSetUpComplete) return GameStateMachine.EGameState.Preparing;
         return StateKey;
     }
 

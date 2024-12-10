@@ -28,7 +28,9 @@ public class PlayerThrowingState : PlayerState
 
     public override PlayerStateMachine.EPlayerState GetNextState()
     {
-        if (!Context.IsThrowing) return PlayerStateMachine.EPlayerState.Idle;
+        if (Context.IsEnd) return PlayerStateMachine.EPlayerState.End;
+
+        else if (!Context.IsThrowing) return PlayerStateMachine.EPlayerState.Idle;
         return StateKey;
     }
 

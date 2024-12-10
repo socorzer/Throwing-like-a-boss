@@ -12,6 +12,7 @@ public class GamePreparingState : GameState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        SetPlayerHP();
     }
     public override void UpdateState()
     {
@@ -22,11 +23,12 @@ public class GamePreparingState : GameState
     public override void ExitState()
     {
         //Debug.Log("Exit" + this);
+
     }
 
     public override GameStateMachine.EGameState GetNextState()
     {
-       
+        if (Context.Canplay) return GameStateMachine.EGameState.Playing;
         return StateKey;
     }
 

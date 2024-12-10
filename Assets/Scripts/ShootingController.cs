@@ -35,7 +35,8 @@ public class ShootingController : MonoBehaviour
             Vector2 direction = bullet.transform.up * power;
             rigidbody.AddForce(direction, ForceMode2D.Impulse);
             shootAmount--;
-            if(shootAmount > 0)
+            _player.PlayThrowAnimation();
+            if (shootAmount > 0)
                 yield return new WaitForSeconds(_shootDelayTime);
             else yield return null;
         }

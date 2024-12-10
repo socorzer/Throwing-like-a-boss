@@ -12,6 +12,7 @@ public class PlayerEndState : PlayerState
     public override void EnterState()
     {
         Debug.Log("Enter" + this);
+        EnterEnd();
     }
     public override void UpdateState()
     {
@@ -26,7 +27,7 @@ public class PlayerEndState : PlayerState
 
     public override PlayerStateMachine.EPlayerState GetNextState()
     {
-       
+
         return StateKey;
     }
 
