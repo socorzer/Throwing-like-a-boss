@@ -1,20 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class HomeManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] GoogleManager _google;
+    [SerializeField] TextMeshProUGUI NameText;
+    public void GoogleSigin()
     {
-        
+        _google.OnSignIn();
+        StartCoroutine(WaitGoogleSignIn());
     }
-
-    // Update is called once per frame
-    void Update()
+    IEnumerator WaitGoogleSignIn()
     {
-        
+        yield return new WaitUntil(() => _google.IsDone);
+
+        NameText.text = $"{_google.FirstName} {_google.LastName}";
     }
     public void LoadGameplay()
     {

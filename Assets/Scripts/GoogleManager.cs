@@ -8,7 +8,10 @@ using UnityEngine.UI;
 public class GoogleManager : MonoBehaviour
 {
 
-    public Text statusText;
+    public string ImageLink;
+    public string FirstName;
+    public string LastName;
+    public bool IsDone;
 
     public string webClientId = "<your client id here>";
 
@@ -73,9 +76,14 @@ public class GoogleManager : MonoBehaviour
         }
         else
         {
-            AddStatusText("Welcome: " + task.Result.DisplayName + "!");
+            GoogleSignInUser user = task.Result;
+            FirstName = user.GivenName;  // ชื่อแรก
+            LastName = user.FamilyName;  // นามสกุล
+            ImageLink = user.ImageUrl.ToString();  // URL ของรูปภาพโปรไฟล์
+
         }
     }
+
 
     public void OnSignInSilently()
     {
@@ -114,6 +122,6 @@ public class GoogleManager : MonoBehaviour
         {
             txt += "\n" + s;
         }
-        statusText.text = txt;
+        Debug.Log(txt);
     }
 }
