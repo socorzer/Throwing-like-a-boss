@@ -39,6 +39,7 @@ public class ShootingController : MonoBehaviour
                 yield return new WaitForSeconds(_shootDelayTime);
             else yield return null;
         }
+        _itemName = "none";
         Invoke(nameof(ThrowEnd), _delayAfterThrow);
     }
     public void ThrowEnd()

@@ -32,15 +32,15 @@ public abstract class PlayerState : BaseState<PlayerStateMachine.EPlayerState>
     }
     public void EnterThrowing()
     {
-        Debug.Log($"Throw With Power {Context.ChargingPower}");
+        //Debug.Log($"Throw With Power {Context.ChargingPower}");
         Context.ShootingController.Shoot(Context.Data.BulletPrefab, Context.ChargingPower * Context.Data.ThrowPower);
         Context.IsMyTurn = false;
     }
     public void ExitThrowing()
     {
         Context.ChargingPower = 0;
-        GameManager.Instance.ChangePlayerTurn();
         GameManager.Instance.RandomWind();
+        GameManager.Instance.ChangePlayerTurn();
         Context.EnableHitboxs(true);
     }
 

@@ -16,3 +16,7 @@ MonoBehaviour:
   MaxChargingPower: 1
   ChargeRate: 0.5
   ThrowPower: 100
+  WindDenominators:
+  - 5
+  - 6
+  - 9

@@ -50,6 +50,7 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
         {
             player.SetPlayerHP();
         }
+        SetAIType(0);
         _context.IsPlaying = true;
     }
     public void ChangePlayerTurn()
@@ -61,7 +62,7 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
     }
     public void SetPlayerCharge(bool isCharging)
     {
-        if (!_context.IsPlaying) return;
+        if (!_context.IsPlaying || _context.CurrentPlayer.IsAI) return;
         isPlayerCharging = isCharging;
         if (isPlayerCharging) StartCoroutine(Charging());
     }
@@ -73,5 +74,10 @@ public class GameStateMachine : StateManager<GameStateMachine.EGameState>
             yield return new WaitForEndOfFrame();
         }
 
+    }
+    public void SetAIType(int index)
+    {
+        AIType type = (AIType)index;
+        _context.Players[0].SetAI(type);
     }
 }

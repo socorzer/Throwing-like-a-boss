@@ -17,9 +17,11 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
 
     [SerializeField] ShootingController _shootingController;
     [SerializeField] List<Collider2D> _hitBoxs;
+
+    float _missedChance;
+    public bool IsAI { get; private set; }
     private void Awake()
     {
-        
 
         ValidationConstrants();
         _data = DataHandler.Instance.PlayerData;
@@ -42,7 +44,8 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     public void SetPlayerTurn()
     {
         _context.IsMyTurn = true;
-        //_context.EnableHitboxs(false);
+        _context.EnableHitboxs(false);
+        if (IsAI) StartCoroutine(AutoCharge());
     }
     public void TakeDamage(bool isHead)
     {
@@ -69,10 +72,52 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
         _context.FrameForCheckDrag = 3;
         _context.IsCharging = true;
     }
-    public void SetPlayerHP() =>_context.SetPlayerHP();
+    IEnumerator AutoCharge()
+    {
+        // คำนวณตัวหารตามความเข้มของลม
+        float windDenominator = 0;
+        float windRange = Mathf.Abs(GameManager.Instance.CurrentWind);
+        if (windRange < 0.5f)
+        {
+            windDenominator = _context.Data.WindDenominators[0];
+        }
+        else if (windRange < 0.8f)
+        {
+            windDenominator = _context.Data.WindDenominators[1];
+        }
+        else { windDenominator = _context.Data.WindDenominators[2]; }
+
+        // คำนวณ targetCharge โดยใช้ windDenominator ที่คำนวณได้
+        float windEffect = GameManager.Instance.CurrentWind / windDenominator;
+        float targetCharge = 0.55f + -windEffect;
+
+        // ล็อกค่า targetCharge ให้อยู่ในช่วง 0 ถึง 1
+        targetCharge = Mathf.Clamp(targetCharge, 0, 1);
+
+        Debug.Log($"CurrentWind/{windDenominator} = {-GameManager.Instance.CurrentWind / windDenominator}\ntarget = {targetCharge}");
+        while (_context.ChargingPower < targetCharge)
+        {
+            Charge();
+            yield return new WaitForEndOfFrame();
+        }
+    }
+    public void SetPlayerHP() => _context.SetPlayerHP();
     public float GetPlayerHPPercent() => _context.HP/_context.MaxHP;
     public bool CanUseItem() => !_context.IsCharging && !_context.IsThrowing && _context.IsMyTurn;
     public void SetItem(string name) => _shootingController.SetItemName(name);
     public void Heal(float heal) => _context.Heal(heal);
     public void ThrowSuccess() => _context.IsThrowing = false;
+    public void SetAI(AIType typeOfAI)
+    {
+        IsAI = true;
+        GameStats enemyStat = StatsReader.Instance.GetStat($"Enemy HP ({typeOfAI.ToString()})");
+        _context.SetPlayerHP(enemyStat);
+        _missedChance = enemyStat.MissedChance;
+    } 
+}
+public enum AIType
+{
+    easy,
+    normal,
+    hard
 }

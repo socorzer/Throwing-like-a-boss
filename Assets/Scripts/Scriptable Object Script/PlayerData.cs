@@ -9,4 +9,6 @@ public class PlayerData : ScriptableObject
     public float MaxChargingPower;
     public float ChargeRate;
     public float ThrowPower;
+    public List<float> WindDenominators;
+
 }

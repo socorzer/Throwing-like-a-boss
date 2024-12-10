@@ -37,9 +37,16 @@ public class PlayerContext
             collider.enabled = isEnable;
         }
     }
-    public void SetPlayerHP()
+    public void SetPlayerHP(GameStats stat = null)
     {
-        MaxHP = StatsReader.Instance.GetStat("Player HP").HP;
+        if (stat == null)
+        {
+            MaxHP = StatsReader.Instance.GetStat("Player HP").HP;
+        }
+        else
+        {
+            MaxHP = stat.HP;
+        }
         HP = MaxHP;
     }
     public Transform PlayerTransform { get; private set; }
