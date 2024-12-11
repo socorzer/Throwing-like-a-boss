@@ -1,4 +1,5 @@
 ﻿
+using Spine;
 using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
@@ -159,15 +160,15 @@ public class PlayerStateMachine : StateManager<PlayerStateMachine.EPlayerState>
     public void SetPlayerEnd(bool isWin)
     {
         _isWin = isWin;
-        if (_isWin)
-            _skeleton.state.SetAnimation(0, "Cheer Friendly", true);
-        else
-            _skeleton.state.SetAnimation(0, "Moody UnFriendly", true);
+
         Invoke(nameof(PlayEndAnimation),1);
     }
     void PlayEndAnimation()
     {
-
+        if (_isWin)
+            _skeleton.state.SetAnimation(0, "Cheer Friendly", true);
+        else
+            _skeleton.state.SetAnimation(0, "Moody UnFriendly", true);
     }
 }
 public enum AIType

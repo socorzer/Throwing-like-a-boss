@@ -1,25 +1,47 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking; // เพิ่มไลบรารีนี้เพื่อใช้ UnityWebRequest
 
 public class StatsReader : Singleton<StatsReader>
 {
-    [SerializeField] private string filePath = "Assets/Data/yourfile.csv";
+    [SerializeField] private string fileName = "yourfile.csv"; // ตั้งชื่อไฟล์ CSV
     public List<GameStats> statsList = new List<GameStats>();
 
     void Awake()
     {
-        LoadCSV();
+        StartCoroutine(LoadCSVFromStreamingAssets()); // เปลี่ยนจาก LoadCSV() เป็น coroutine ใหม่
     }
 
-    void LoadCSV()
+    IEnumerator LoadCSVFromStreamingAssets()
     {
-        string[] rows = System.IO.File.ReadAllLines(filePath);
+        string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
+
+        using (UnityWebRequest request = UnityWebRequest.Get(filePath))
+        {
+            yield return request.SendWebRequest(); // ส่งคำขอและรอจนกว่าจะเสร็จสิ้น
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("Failed to load file: " + request.error);
+            }
+            else
+            {
+                // โหลดข้อมูลจากไฟล์ CSV
+                ParseCSV(request.downloadHandler.text); // แปลงข้อมูลที่ได้จาก request
+            }
+        }
+    }
+
+    void ParseCSV(string csvData)
+    {
+        string[] rows = csvData.Split('\n');
 
         for (int i = 1; i < rows.Length; i++)
         {
             string[] fields = rows[i].Split(',');
-            if (fields.Length >= 6) // ตรวจสอบว่ามีคอลัมน์ครบถ้วน
+            if (fields.Length >= 6)
             {
                 GameStats stat = new GameStats();
                 stat.Name = fields[0];
@@ -33,27 +55,26 @@ public class StatsReader : Singleton<StatsReader>
             }
         }
 
-        // ตรวจสอบข้อมูลโดยการพิมพ์ออกมาดู
         foreach (GameStats stat in statsList)
         {
             Debug.Log($"{stat.Name}: Amount={stat.Amount}, Damage={stat.Damage}, HP={stat.HP}, MissedChance={stat.MissedChance}, Second={stat.Second}");
         }
     }
 
-    // ฟังก์ชันเสริมสำหรับการแปลงข้อมูลเป็น int อย่างปลอดภัย
     int ParseIntSafe(string input)
     {
         int value;
         if (int.TryParse(input, out value))
             return value;
-        else
-            return 0; // คืนค่า 0 หากแปลงไม่สำเร็จ
+        return 0;
     }
-    public GameStats GetStat(string Name)
+
+    public GameStats GetStat(string name)
     {
-        return statsList.Find((x) => x.Name == Name);
+        return statsList.Find(x => x.Name == name);
     }
 }
+
 [Serializable]
 public class GameStats
 {

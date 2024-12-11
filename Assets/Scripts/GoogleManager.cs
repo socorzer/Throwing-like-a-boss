@@ -1,31 +1,39 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Google;
 using UnityEngine;
-using UnityEngine.UI;
+using Unity.VisualScripting;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.Networking;
 
-public class GoogleManager : MonoBehaviour
+
+
+#if !UNITY_WEBGL
+using Google;
+#endif
+using System.Threading.Tasks;
+
+public class GoogleManager : Singleton<GoogleManager>
 {
-
-    public string ImageLink;
-    public string FirstName;
-    public string LastName;
-    public bool IsDone;
+    public string Firstname, Lastname, Birthday, Email, Gender, ProfileImageLink;
+    public Texture ProfilePicture;
+    public bool OnProcess;
+    public bool LoginSuccess;
 
     public string webClientId = "<your client id here>";
-
+#if !UNITY_WEBGL
     private GoogleSignInConfiguration configuration;
 
-    // Defer the configuration creation until Awake so the web Client ID
-    // Can be set via the property inspector in the Editor.
     void Awake()
     {
         configuration = new GoogleSignInConfiguration
         {
             WebClientId = webClientId,
-            RequestIdToken = true
+            RequestIdToken = true,
+            RequestEmail = true // Ensure email is requested
         };
+
+        // Attempt silent sign-in when the app starts
+        SignInSilently();
     }
 
     public void OnSignIn()
@@ -33,95 +41,138 @@ public class GoogleManager : MonoBehaviour
         GoogleSignIn.Configuration = configuration;
         GoogleSignIn.Configuration.UseGameSignIn = false;
         GoogleSignIn.Configuration.RequestIdToken = true;
-        AddStatusText("Calling SignIn");
 
-        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(
-          OnAuthenticationFinished);
+        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnAuthenticationFinished);
     }
 
     public void OnSignOut()
     {
-        AddStatusText("Calling SignOut");
         GoogleSignIn.DefaultInstance.SignOut();
+        ClearUserData();
+        Debug.Log("User signed out.");
+        //MenuManager.Instance.ShowLoginPage(); // Show login page after logout
     }
 
     public void OnDisconnect()
     {
-        AddStatusText("Calling Disconnect");
         GoogleSignIn.DefaultInstance.Disconnect();
+        ClearUserData();
+        Debug.Log("User disconnected.");
+        //MenuManager.Instance.ShowLoginPage(); // Show login page after disconnect
     }
-
-    internal void OnAuthenticationFinished(Task<GoogleSignInUser> task)
-    {
-        if (task.IsFaulted)
-        {
-            using (IEnumerator<System.Exception> enumerator =
-                    task.Exception.InnerExceptions.GetEnumerator())
-            {
-                if (enumerator.MoveNext())
-                {
-                    GoogleSignIn.SignInException error =
-                            (GoogleSignIn.SignInException)enumerator.Current;
-                    AddStatusText("Got Error: " + error.Status + " " + error.Message);
-                }
-                else
-                {
-                    AddStatusText("Got Unexpected Exception?!?" + task.Exception);
-                }
-            }
-        }
-        else if (task.IsCanceled)
-        {
-            AddStatusText("Canceled");
-        }
-        else
-        {
-            GoogleSignInUser user = task.Result;
-            FirstName = user.GivenName;  // ชื่อแรก
-            LastName = user.FamilyName;  // นามสกุล
-            ImageLink = user.ImageUrl.ToString();  // URL ของรูปภาพโปรไฟล์
-
-        }
-    }
-
-
-    public void OnSignInSilently()
+#if PLATFORM_ANDROID
+    private void SignInSilently()
     {
         GoogleSignIn.Configuration = configuration;
         GoogleSignIn.Configuration.UseGameSignIn = false;
         GoogleSignIn.Configuration.RequestIdToken = true;
-        AddStatusText("Calling SignIn Silently");
 
-        GoogleSignIn.DefaultInstance.SignInSilently()
-              .ContinueWith(OnAuthenticationFinished);
+        GoogleSignIn.DefaultInstance.SignInSilently().ContinueWith(OnAuthenticationFinished);
     }
-
-
-    public void OnGamesSignIn()
+#else
+    private void SignInSilently()
     {
+        // ตั้งค่า Google Sign-In ตามที่ต้องการ
         GoogleSignIn.Configuration = configuration;
-        GoogleSignIn.Configuration.UseGameSignIn = true;
-        GoogleSignIn.Configuration.RequestIdToken = false;
+        GoogleSignIn.Configuration.UseGameSignIn = false;
+        GoogleSignIn.Configuration.RequestIdToken = true;
 
-        AddStatusText("Calling Games SignIn");
+        // พยายาม sign-in แบบเงียบ ซึ่งเทียบเท่ากับ restorePreviousSignIn ใน iOS ดั้งเดิม
+        GoogleSignIn.DefaultInstance.SignInSilently().ContinueWith(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                // หากการ sign-in แบบเงียบล้มเหลวหรือถูกยกเลิก ให้แสดงหน้าเข้าสู่ระบบ
+                Debug.LogWarning("Silent sign-in failed or was canceled.");
+                MenuManager.Instance.ShowLoginPage();
+            }
+            else
+            {
+                // การ sign-in แบบเงียบสำเร็จ
+                Debug.Log("Silent sign-in successful. Welcome: " + task.Result.DisplayName);
+                Firstname = task.Result.GivenName;
+                Lastname = task.Result.FamilyName;
+                Email = task.Result.Email;
+                ProfileImageLink = task.Result.ImageUrl.ToString();
 
-        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(
-          OnAuthenticationFinished);
+                // โหลดรูปโปรไฟล์แบบ asynchronous หากจำเป็น
+                StartCoroutine(LoadProfilePicture(ProfileImageLink));
+                MenuManager.Instance.AutoLoginGoogle(); // เข้าสู่ระบบอัตโนมัติหากสำเร็จ
+            }
+        });
     }
-
-    private List<string> messages = new List<string>();
-    void AddStatusText(string text)
+#endif
+    internal void OnAuthenticationFinished(Task<GoogleSignInUser> task)
     {
-        if (messages.Count == 5)
+        if (task.IsFaulted)
         {
-            messages.RemoveAt(0);
+            using (IEnumerator<System.Exception> enumerator = task.Exception.InnerExceptions.GetEnumerator())
+            {
+                if (enumerator.MoveNext())
+                {
+                    GoogleSignIn.SignInException error = (GoogleSignIn.SignInException)enumerator.Current;
+                    Debug.LogError("Got Error: " + error.Status + " " + error.Message);
+                }
+                else
+                {
+                    Debug.LogError("Got Unexpected Exception: " + task.Exception);
+                }
+            }
+            LoginSuccess = false;
+            //MenuManager.Instance.ShowLoginPage(); // Show login page if sign-in failed
         }
-        messages.Add(text);
-        string txt = "";
-        foreach (string s in messages)
+        else if (task.IsCanceled)
         {
-            txt += "\n" + s;
+            Debug.LogWarning("Sign-in canceled.");
+            LoginSuccess = false;
+            //MenuManager.Instance.ShowLoginPage(); // Show login page if sign-in canceled
         }
-        Debug.Log(txt);
+        else
+        {
+            Debug.Log("Welcome: " + task.Result.DisplayName + "!");
+            Firstname = task.Result.GivenName;
+            Lastname = task.Result.FamilyName;
+            Email = task.Result.Email;
+            ProfileImageLink = task.Result.ImageUrl.ToString();
+
+            // Load the profile picture asynchronously if needed
+            StartCoroutine(LoadProfilePicture(ProfileImageLink));
+            //MenuManager.Instance.AutoLoginGoogle(); // Automatically login if successful
+
+            LoginSuccess = true;
+        }
+        OnProcess = false;
     }
+
+    private IEnumerator LoadProfilePicture(string url)
+    {
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
+        yield return request.SendWebRequest(); // ส่งคำขอและรอจนกว่าจะเสร็จสิ้น
+
+        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        {
+            // ตรวจสอบว่ามีข้อผิดพลาดในการเชื่อมต่อหรือโปรโตคอล
+            Debug.LogError("Failed to load profile picture: " + request.error);
+        }
+        else
+        {
+            // สำเร็จ ใช้ texture ที่ได้รับจากเว็บ
+            ProfilePicture = DownloadHandlerTexture.GetContent(request);
+            Debug.Log("Profile Picture Loaded.");
+        }
+        HomeManager.Instance.LoginSuccess();
+
+    }
+
+    private void ClearUserData()
+    {
+        Firstname = "";
+        Lastname = "";
+        Email = "";
+        ProfileImageLink = "";
+        ProfilePicture = null;
+        LoginSuccess = false;
+        OnProcess = false;
+    }
+#endif
 }

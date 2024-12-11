@@ -35,8 +35,28 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] TextMeshProUGUI _winnerNameText;
     [SerializeField] TextMeshProUGUI _playTimeText;
 
+    [Header("Profile")]
+    [SerializeField] RawImage _profileImage;
+    [SerializeField] TextMeshProUGUI _profileName;
 
-
+    private void Start()
+    {
+        SetProfile();
+    }
+    void SetProfile()
+    {
+        GoogleManager google = GoogleManager.Instance;
+        if (google.LoginSuccess)
+        {
+            _profileImage.texture = google.ProfilePicture;
+            _profileName.text = $"{google.Firstname} {google.Lastname}";
+        }
+        else
+        {
+            _profileName.text = $"Guest";
+            _profileImage.texture = null;
+        }
+    }
     public void SetChargingGagePosition(Vector2 position)
     {
         Vector2 screenPosition = _camera.WorldToScreenPoint(position);
