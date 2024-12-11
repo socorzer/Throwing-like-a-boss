@@ -33,6 +33,9 @@ public class ShootingController : MonoBehaviour
             GameObject bullet = Instantiate(prefab, _bulletSpawnPoint.position, _bulletSpawnPoint.rotation);
             Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
             Vector2 direction = bullet.transform.up * power;
+            if(_itemName == "Power Throw")
+                bullet.transform.localScale = bullet.transform.localScale * 2f;
+
             rigidbody.AddForce(direction, ForceMode2D.Impulse);
             shootAmount--;
             _player.PlayThrowAnimation();
